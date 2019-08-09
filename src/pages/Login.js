@@ -28,8 +28,7 @@ export default function Login({ navigation }) {
         const response = await api.post('/devs', { username: user })
         
         await AsyncStorage.setItem('user', response.data._id)
-
-        navigation.navigate('Main', { _id: response.data._id })
+        navigation.navigate('Main', { user: response.data._id })
     }
 
     return (
