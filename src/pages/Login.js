@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import api from '../services/api'
 
-import logo from '../assets/logo'
+import logo from '../assets/logo.png'
 
 export default function Login({ navigation }) {
     const [user, setUser] = useState('')
@@ -50,7 +50,7 @@ export default function Login({ navigation }) {
                 onChangeText={setUser}
             />
 
-            <TouchableOpacity style={styles.input} onPress={handleLogin}>
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <TextInput style={styles.buttonText}>Entrar</TextInput>
             </TouchableOpacity>
         </KeyboardAvoidingView>
