@@ -8,6 +8,7 @@ import {
     KeyboardAvoidingView
 } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import Toast from 'react-native-root-toast'
 
 import api from '../services/api'
 
@@ -15,6 +16,7 @@ import logo from '../assets/logo.png'
 
 export default function Login({ navigation }) {
     const [user, setUser] = useState('')
+    const [error, setError] = useState(false)
 
     useEffect(() => {
         AsyncStorage.getItem('user').then(user => {
@@ -25,10 +27,15 @@ export default function Login({ navigation }) {
     },[])
 
     async function handleLogin() {
-        const response = await api.post('/devs', { username: user })
-        
-        await AsyncStorage.setItem('user', response.data._id)
-        navigation.navigate('Main', { user: response.data._id })
+        try {
+            const response = await api.post('/devs', { username: user })
+            
+            await AsyncStorage.setItem('user', response.data._id)
+            navigation.navigate('Main', { user: response.data._id })
+        } catch (error) {
+            setError(true)
+            console.log('=== olha mundo ====', error)
+        }
     }
 
     return (
@@ -52,6 +59,17 @@ export default function Login({ navigation }) {
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <TextInput style={styles.buttonText}>Entrar</TextInput>
             </TouchableOpacity>
+
+            <Toast
+                visible={error}
+                position={-20}
+                duration={2000}
+                hideOnPress={true}
+                animation={true}
+                backgroundColor={'#df4723'}
+                textColor={'#fff'}
+                onHide={() => setError(false)}
+            >Usuário não existe no Github</Toast>
         </KeyboardAvoidingView>
     )
 }
