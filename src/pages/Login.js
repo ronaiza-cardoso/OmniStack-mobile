@@ -34,7 +34,6 @@ export default function Login({ navigation }) {
             navigation.navigate('Main', { user: response.data._id })
         } catch (error) {
             setError(true)
-            console.log('=== olha mundo ====', error)
         }
     }
 

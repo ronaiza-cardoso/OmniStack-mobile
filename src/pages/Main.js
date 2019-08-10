@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage'
+import io from 'socket.io-client'
 
 import logo from '../assets/logo.png';
 import like from '../assets/like.png';
 import dislike from '../assets/dislike.png';
+import isamtach from '../assets/itsamatch.png';
 
 import api from '../services/api';
 
 export default function Main({ navigation }) {
     const id = navigation.getParam('user');
 	const [users, setUser] = useState([]);
+	const [matchDev, setMatchDev] = useState(null)
 	useEffect(() => {
 		async function lodaUsers() {
 			const response = await api.get('/devs', {
@@ -22,7 +25,15 @@ export default function Main({ navigation }) {
 		}
 
 		lodaUsers();
-    }, [id]);
+	}, [id]);
+	
+	useEffect(() => {
+		const socket = io('http://localhost:3333/', {
+			query: { user: id }
+		})
+
+		socket.on('macth', dev => setMatchDev(dev))
+	}, [id])
     
     async function handleLogout() {
         await AsyncStorage.clear()
@@ -78,7 +89,20 @@ export default function Main({ navigation }) {
                         <Image source={like} />
                     </TouchableOpacity>
                 </View>
-            )}
+			)}
+			
+			{matchDev && (
+				<View style={styles.matchContainer}>
+					<Image style={styles.macthLogo} source={isamtach} />
+					<Image style={styles.macthAvatar} source={{ uri: matchDev.avatar }} />
+
+					<Text style={styles.macthName}>{matchDev.name}</Text>
+					<Text style={styles.macthBio}>{matchDev.bio}</Text>
+					<TouchableOpacity onPress={() => setMatchDev(null)}>
+						<Text style={styles.closeMatch}>FECHAR</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 		</SafeAreaView>
 	);
 }
@@ -161,5 +185,48 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         color: '#999',
         fontSize: 20
-    }
+	},
+	
+	matchContainer: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: 'rgba(0,0,0,.8)',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+
+	macthLogo: {
+		height: 60,
+		resizeMode: 'contain'
+	},
+
+	macthAvatar: {
+		width: 160,
+		height: 160,
+		borderRadius: 160/2,
+		borderWidth: 5,
+		borderColor: '#fff',
+		marginVertical: 30,
+	},
+
+	macthName: {
+		fontSize: 26,
+		color: '#fff'
+	},
+
+	macthBio: {
+		marginTop: 10,
+		fontSize: 16,
+		color: 'rgba(255,255,255,.8)',
+		lineHeight: 24,
+		textAlign: 'center',
+		paddingHorizontal: 30,
+	},
+
+	closeMatch: {
+		fontSize: 16,
+		color: 'rgba(255,255,255,.8)',
+		lineHeight: 24,
+		textAlign: 'center',
+		marginTop: 30,
+	}
 })
